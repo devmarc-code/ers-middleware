@@ -1,22 +1,8 @@
-const express = require('express');
-const fetch = require('node-fetch');
-const cors = require('cors');
-require('dotenv').config();
-
-const app = express();
-app.use(cors());
-
-const ERS_API_URL = 'https://eventrentalsystems.com/api/inventory/getInventoryItems'; // This is the typical ERS inventory endpoint
-const API_KEY = process.env.ERS_API_KEY;
-const API_TOKEN = process.env.ERS_API_TOKEN;
-
 app.get('/api/products', async (req, res) => {
   try {
     const response = await fetch(ERS_API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         key: API_KEY,
         token: API_TOKEN,
@@ -24,14 +10,16 @@ app.get('/api/products', async (req, res) => {
     });
 
     const data = await response.json();
+
+    // If API returns an error message, log it
+    if (data.error) {
+      console.error('ERS API Error:', data.error);
+      return res.status(500).json({ error: data.error });
+    }
+
     res.json(data);
   } catch (error) {
-    console.error('Error fetching ERS products:', error);
+    console.error('Fetch failed:', error.message);
     res.status(500).json({ error: 'Failed to fetch data from ERS' });
   }
-});
-
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`ERS middleware API running on port ${port}`);
 });
