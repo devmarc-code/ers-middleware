@@ -6,7 +6,7 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 
-const ERS_API_URL = 'https://www.ersapi.com/api/v1/inventory/getInventoryItems'; // This is the typical ERS inventory endpoint
+const ERS_API_URL = 'https://eventrentalsystems.com/api/inventory/getInventoryItems'; // This is the typical ERS inventory endpoint
 const API_KEY = process.env.ERS_API_KEY;
 const API_TOKEN = process.env.ERS_API_TOKEN;
 
