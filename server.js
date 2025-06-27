@@ -1,56 +1,46 @@
-const express = require('express');
-const fetch = require('node-fetch');
-const cors = require('cors');
-require('dotenv').config();
+import express from 'express';
+import fetch from 'node-fetch'; // If using ESM. Use 'node-fetch@2' or install latest.
+import dotenv from 'dotenv';
 
+dotenv.config();
 const app = express();
-app.use(cors());
+const PORT = process.env.PORT || 3000;
 
-const ERS_API_URL = 'https://jumpinjoypartyrentals.ourers.com/api/inventory/getInventoryItems';
-const API_KEY = process.env.ERS_API_KEY;
-const API_TOKEN = process.env.ERS_API_TOKEN;
+// Load ERS credentials from environment or hardcode for testing
+const ERS_API_KEY = process.env.ERS_API_KEY || 'your-api-key';
+const ERS_API_TOKEN = process.env.ERS_API_TOKEN || 'your-api-token';
 
-app.get('/api/products', async (req, res) => {
+app.use(express.json());
+
+// API route to get product info by ItemID
+app.get('/api/iteminfo/:itemId', async (req, res) => {
+  const itemId = req.params.itemId;
+
   try {
-    const response = await fetch(ERS_API_URL, {
+    const response = await fetch('https://jumpinjoypartyrentals.ourers.com/publicapi/read/iteminfo/', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        key: API_KEY,
-        token: API_TOKEN,
-      }),
+        key: ERS_API_KEY,
+        token: ERS_API_TOKEN,
+        ItemID: itemId
+      })
     });
 
-    const text = await response.text();
+    const data = await response.json();
 
-    // Log raw response to understand what’s happening
-    console.log('ERS raw response:', text);
-
-    try {
-      const data = JSON.parse(text);
-
-      if (data.error) {
-        console.error('ERS API Error:', data.error);
-        return res.status(500).json({ error: data.error });
-      }
-
-      return res.json(data);
-    } catch (err) {
-      console.error('Failed to parse JSON:', err.message);
-      return res.status(500).json({
-        error: 'ERS did not return valid JSON',
-        raw: text,
-      });
+    if (data.error) {
+      console.error('ERS API Error:', data.error);
+      return res.status(500).json({ error: data.error });
     }
-  } catch (error) {
-    console.error('Error fetching ERS products:', error.message);
-    res.status(500).json({ error: 'Failed to fetch data from ERS' });
+
+    res.json(data);
+  } catch (err) {
+    console.error('Fetch error:', err.message);
+    res.status(500).json({ error: 'Failed to contact ERS' });
   }
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`ERS middleware running on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
