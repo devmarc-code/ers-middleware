@@ -18,8 +18,8 @@ app.get('/api/products', async (req, res) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        key: 31886fa9692619091af6968b043d9968ae18516858c665f491721d26381c96472590de1923a45cf9c87e0f9213024e838bcfdd8372229be9e29fee5c49bd2112$e5688d1b,
-        token: jumpinjoypartyrentals_23b2dd1533b32551f0f405927d23f9c9,
+        key: API_KEY,
+        token: API_TOKEN,
       })
     });
 
